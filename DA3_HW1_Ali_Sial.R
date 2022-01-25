@@ -182,7 +182,7 @@ datasummary( eph*factor(edu)*gender ~ N + Percent() + Mean, data = df_clean )
 # the summary suggest that their is a difference in earnings based on education and race
 
 gg1 <- ggplot(df_clean, aes(x = factor(edu), y = eph,
-                              fill = factor(gender), color=factor(gender))) +
+                            fill = factor(gender), color=factor(gender))) +
   geom_boxplot(alpha=0.8, na.rm=T, outlier.shape = NA, width = 0.8) +
   stat_boxplot(geom = "errorbar", width = 0.8, size = 0.3, na.rm=T)+
   scale_color_manual(name="",
@@ -203,7 +203,7 @@ datasummary( eph*factor(race_dummy)*gender ~ N + Percent() + Mean, data = df_cle
 # it appears that majority of the employees are white and earnings differ based on summary
 
 gg2 <- ggplot(df_clean, aes(x = factor(race_dummy), y = eph,
-                      fill = factor(gender), color=factor(gender))) +
+                            fill = factor(gender), color=factor(gender))) +
   geom_boxplot(alpha=0.8, na.rm=T, outlier.shape = NA, width = 0.8) +
   stat_boxplot(geom = "errorbar", width = 0.8, size = 0.3, na.rm=T)+
   scale_color_manual(name="",
@@ -224,7 +224,7 @@ datasummary( eph*edu*race_dummy*gender ~ N + Percent() + Mean, data = df_clean )
 # Graph below only for Education and Race comparison
 
 gg3 <- ggplot(df_clean, aes(x = factor(edu), y = eph,
-                      fill = factor(race_dummy), color=factor(race_dummy))) +
+                            fill = factor(race_dummy), color=factor(race_dummy))) +
   geom_boxplot(alpha=0.8, na.rm=T, outlier.shape = NA, width = 0.8) +
   stat_boxplot(geom = "errorbar", width = 0.8, size = 0.3, na.rm=T)+
   scale_color_manual(name="",
@@ -235,7 +235,7 @@ gg3 <- ggplot(df_clean, aes(x = factor(edu), y = eph,
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
   ggthemes::theme_economist() +
   theme(axis.text.x = element_text(angle=45, vjust=.5))
-  
+
 
 gg3
 
@@ -245,7 +245,7 @@ datasummary( eph*marital_status*gender ~ N + Percent() + Mean, data = df_clean )
 # It appears that earnings is different for marital status and gender
 
 gg4 <- ggplot(df_clean, aes(x = marital_status, y = eph,
-                      fill = factor(gender), color=factor(gender))) +
+                            fill = factor(gender), color=factor(gender))) +
   geom_boxplot(alpha=0.8, na.rm=T, outlier.shape = NA, width = 0.8) +
   stat_boxplot(geom = "errorbar", width = 0.8, size = 0.3, na.rm=T)+
   scale_color_manual(name="",
@@ -265,7 +265,7 @@ datasummary( eph*unionmme*gender ~ N + Percent() + Mean, data = df_clean )
 # It appears that earnings is different for union member and gender
 
 gg5 <- ggplot(df_clean, aes(x = unionmme, y = eph,
-                      fill = factor(gender), color=factor(gender))) +
+                            fill = factor(gender), color=factor(gender))) +
   geom_boxplot(alpha=0.8, na.rm=T, outlier.shape = NA, width = 0.8) +
   stat_boxplot(geom = "errorbar", width = 0.8, size = 0.3, na.rm=T)+
   scale_color_manual(name="",
@@ -343,8 +343,52 @@ gg8
 
 
 
-### 8
-## Earnings, Region and Gender
+### 9
+## Earnings, Race and Marital Status
+datasummary( eph*race_dummy*marital_status ~ N + Percent() + Mean, data = df_clean )
+# It appears that earnings is different based on race and marital status
 
+gg9 <- ggplot(df_clean, aes(x = factor(marital_status), y = eph,
+                            fill = factor(race_dummy), color=factor(race_dummy))) +
+  geom_boxplot(alpha=0.8, na.rm=T, outlier.shape = NA, width = 0.8) +
+  stat_boxplot(geom = "errorbar", width = 0.8, size = 0.3, na.rm=T)+
+  scale_color_manual(name="",
+                     values=c('red','blue')) +
+  scale_fill_manual(name="",
+                    values=c('red','blue')) +
+  labs(x = "Race",y = "Earnings per Hour (USD)")+
+  scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
+  ggthemes::theme_economist()
+
+gg9
+
+
+### 10
+## Earnings, Union Member and Class
+datasummary( eph*unionmme*class ~ N + Percent() + Mean, data = df_clean )
+# It appears that earnings is different based on union membership and class
+
+gg10 <- ggplot(df_clean, aes(x = factor(class), y = eph,
+                             fill = factor(unionmme), color=factor(unionmme))) +
+  geom_boxplot(alpha=0.8, na.rm=T, outlier.shape = NA, width = 0.8) +
+  stat_boxplot(geom = "errorbar", width = 0.8, size = 0.3, na.rm=T)+
+  scale_color_manual(name="",
+                     values=c('red','blue')) +
+  scale_fill_manual(name="",
+                    values=c('red','blue')) +
+  labs(x = "Class",y = "Earnings per Hour (USD)")+
+  scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
+  ggthemes::theme_economist()+
+  theme(axis.text.x = element_text(angle=45, vjust=.5))
+
+gg10
+
+
+
+### 10
+## Earnings, Union Member and Region
+datasummary( eph*unionmme*region ~ N + Percent() + Mean, data = df_clean )
+# It appears that earnings is different based on union membership and region, especially
+# in the case of south region
 
 
