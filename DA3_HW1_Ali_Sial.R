@@ -64,7 +64,7 @@ ggplot(df , aes(x = log(eph))) +
 
 ########
 ## Age
-ggplot( df , aes(x = age2, y = eph)) +
+ggplot( df , aes(x = age, y = eph)) +
   geom_point(color='red',size=2,alpha=0.6) +
   geom_smooth(method="loess" , formula = y ~ x )+
   theme_bw()
@@ -163,7 +163,7 @@ df_clean <- df %>% select(-c(hhid,intmonth,stfips,weight,earnwke,uhours,grade92,
                              lfsr94,occ2012,state))
 
 ## Variables dropped that were not explained or explored above are dropped
-## becuase either there wasn't much variation in the observations
+## because either there wasn't much variation in the observations
 ## or a similar variable was already included for further modeling (e.g: prcitshp
 ## majority of the observations were from the same category thus adding not much value 
 ## to the data available). 
@@ -322,7 +322,7 @@ gg7
 
 ### 8
 ## Earnings, Region and Gender
-datasummary( eph*gender*region ~ N + Percent() + Mean, data = df_clean )
+datasummary( eph*region*gender ~ N + Percent() + Mean, data = df_clean )
 # It appears that earnings is different based on gender and region
 
 gg8 <- ggplot(df_clean, aes(x = factor(region), y = eph,
@@ -407,5 +407,145 @@ gg11 <- ggplot(df_clean, aes(x = factor(region), y = eph,
 
 gg11
 
+
+###################################
+## Setting up Regressions models ##
+###################################
+
+
+# Model 1:
+# As per the my own understanding the earnings tend to be higher the more educated the employee is, 
+# Therefor, the first model is a basic model with only education as the prediction variable.
+model1 <- as.formula(eph ~ edu)
+
+
+
+# Model 2: 
+# Usually the earnings are higher for older employees
+# Thus, in this model apart from education, I have included  age, and square term of age.
+# Gender variable is also included to incorporate the earnings difference due to gender
+model2 <- as.formula(eph ~ edu + age + age2 + gender)
+
+
+
+# Model 3:
+# In this model i have included all variable that can impact the earnings of an individual along with
+# few interaction terms for gender 
+model3 <- as.formula(eph ~ edu + age + age2 + gender + gender*edu + gender*class + gender*marital_status
+                     + race_dummy + ownchild + unionmme + marital_status  + class + region)
+
+
+# Model 4:
+# This is the most complex model that includes all variable plus possible interaction terms
+# for gender, race and union membership 
+model4 <- as.formula(eph ~ edu + age + age2 + gender + race_dummy + ownchild + unionmme +
+                       marital_status  + class + region + gender*edu + gender*class + 
+                       gender*marital_status + gender*race_dummy + gender*unionmme +
+                       gender*ownchild + race_dummy*marital_status + unionmme*class +
+                       unionmme*region)
+
+
+### Running the regressions
+reg1 <- feols(model1, data = df_clean , vcov="hetero")
+reg2 <- feols(model2, data = df_clean , vcov="hetero" )
+reg3 <- feols(model3, data = df_clean , vcov="hetero" )
+reg4 <- feols(model4, data = df_clean , vcov="hetero" )
+
+summary(reg2)
+
+# evaluation of the models: using all the sample
+fitstat_register("k", function(x){length( x$coefficients ) - 1}, "No. Variables")           
+etable( reg1 , reg2 , reg3 , reg4 , fitstat = c('aic','bic','rmse','r2','n','k'), keepFactors = TRUE )
+
+
+######################
+# Cross-Validation  ##
+######################
+
+
+# Simple k-fold cross validation setup:
+# 1) Used method for estimating the model: "lm" - linear model (y_hat = b0+b1*x1+b2*x2 + ...)
+# 2) set number of folds to use (must be less than the no. observations)
+k <- 4
+
+# We use the 'train' function which allows many type of model training -> use cross-validation
+set.seed(300)
+cv1 <- train(model1, df_clean, method = "lm", trControl = trainControl(method = "cv", number = k))
+
+# Check the output:
+cv1
+summary(cv1)
+cv1$results
+cv1$resample
+
+set.seed(300)
+cv2 <- train(model2, df_clean, method = "lm", trControl = trainControl(method = "cv", number = k))
+set.seed(300)
+cv3 <- train(model3, df_clean, method = "lm", trControl = trainControl(method = "cv", number = k), na.action = "na.omit")
+set.seed(300)
+cv4 <- train(model4, df_clean, method = "lm", trControl = trainControl(method = "cv", number = k), na.action = "na.omit")
+
+# Calculate RMSE for each fold and the average RMSE as well
+cv <- c("cv1", "cv2", "cv3", "cv4")
+rmse_cv <- c()
+
+for(i in 1:length(cv)){
+  rmse_cv[i] <- sqrt((get(cv[i])$resample[[1]][1]^2 +
+                        get(cv[i])$resample[[1]][2]^2 +
+                        get(cv[i])$resample[[1]][3]^2 +
+                        get(cv[i])$resample[[1]][4]^2)/4)
+}
+
+
+# summarize results
+cv_mat <- data.frame(rbind(cv1$resample[4], "Average"),
+                     rbind(cv1$resample[1], rmse_cv[1]),
+                     rbind(cv2$resample[1], rmse_cv[2]),
+                     rbind(cv3$resample[1], rmse_cv[3]),
+                     rbind(cv4$resample[1], rmse_cv[4])
+)
+
+colnames(cv_mat)<-c("Resample","Model 1", "Model 2", "Model 3", "Model 4")
+cv_mat 
+
+# Show model complexity and out-of-sample RMSE performance
+m_comp <- c()
+models <- c("reg1", "reg2", "reg3", "reg4")
+for( i in 1 : length(cv) ){
+  m_comp[ i ] <- length( get( models[i] )$coefficient  - 1 ) 
+}
+
+m_comp <- tibble( model = models , 
+                  complexity = m_comp,
+                  RMSE = rmse_cv )
+
+gg12 <- ggplot( m_comp , aes( x = complexity , y = RMSE ) ) +
+  geom_point(color='red',size=2) +
+  geom_line(color='blue',size=0.5)+
+  labs(x='Number of explanatory variables',y='Averaged RMSE on test samples',
+       title='Prediction performance and model compexity') +
+  ggthemes::theme_economist()
+
+gg12
+
+# plotting results
+gg13<- ggplot(df_clean, aes(x=predict(reg2, df_clean), y=eph)) + 
+  geom_point(alpha = 0.5) +
+  geom_abline(intercept = 0, slope = 1, size = 0.5) +
+  scale_x_continuous(limits = c(0,30)) + 
+  scale_y_continuous(limits = c(0,60)) +
+  ggthemes::theme_economist()
+
+gg13
+###################
+
+## Arranging interaction plots into a grid for better presentation
+
+grid.arrange(educ_gender, educ_race, race_gender, race_married, 
+             nrow = 2, ncol = 2)
+
+grid.arrange(married_gender, ownchild_gender, union_gender, unionmme_class, nrow = 2, ncol = 2)
+
+grid.arrange(unionmme_prborn, unionmme_race, unionmme_region, nrow = 2, ncol = 2)
 
 
