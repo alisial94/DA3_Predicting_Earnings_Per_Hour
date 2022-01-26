@@ -61,6 +61,8 @@ ggplot(df , aes(x = eph)) +
 ggplot(df , aes(x = log(eph))) +
   geom_histogram( fill='navyblue', color = 'white' ) +
   theme_bw()
+## log for earnings per hour not included as it doesnt adjust for normal distribution
+
 
 ########
 ## Age
@@ -74,8 +76,8 @@ ggplot( df , aes(x = age, y = eph)) +
 df$age2 <- df$age^2
 
 ########
-## Edudcational Degree (grade92)
-ggplot( df , aes(x = grade92, y = ep)) +
+## Educational Degree (grade92)
+ggplot( df , aes(x = grade92, y = eph)) +
   geom_point(color='red',size=2,alpha=0.6) +
   geom_smooth(method="loess" , formula = y ~ x )+
   theme_bw()
@@ -138,7 +140,7 @@ datasummary( eph*factor(class) ~ N + Percent() + Mean, data = df )
 #######
 ## Union Membership 
 datasummary( eph*factor(unionmme) ~ N + Percent() + Mean, data = df ) 
-## will be included inthe model
+## will be included in the model
 
 
 #######
@@ -191,7 +193,8 @@ gg1 <- ggplot(df_clean, aes(x = factor(edu), y = eph,
                     values=c('red','blue')) +
   labs(x = "Education Level",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() +
+  ggthemes::theme_economist_white() +
+  ggtitle("Earnings, Education and Gender") +
   theme(axis.text.x = element_text(angle=45, vjust=.5))
 
 gg1
@@ -212,7 +215,8 @@ gg2 <- ggplot(df_clean, aes(x = factor(race_dummy), y = eph,
                     values=c('red','blue')) +
   labs(x = "Race",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() 
+  ggthemes::theme_economist_white() +
+  ggtitle("Earnings, Race and Gender")
 
 gg2
 
@@ -233,7 +237,8 @@ gg3 <- ggplot(df_clean, aes(x = factor(edu), y = eph,
                     values=c('red','blue')) +
   labs(x = "Education Level",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() +
+  ggthemes::theme_economist_white() +
+  ggtitle("Earnings, Education Level, Race and Gender")
   theme(axis.text.x = element_text(angle=45, vjust=.5))
 
 
@@ -254,7 +259,8 @@ gg4 <- ggplot(df_clean, aes(x = marital_status, y = eph,
                     values=c('red','blue')) +
   labs(x = "Marital Status",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() 
+  ggthemes::theme_economist_white() +
+  ggtitle("Earnings, Marital Status and Gender")
 
 gg4
 
@@ -274,7 +280,8 @@ gg5 <- ggplot(df_clean, aes(x = unionmme, y = eph,
                     values=c('red','blue')) +
   labs(x = "Union Member",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() 
+  ggthemes::theme_economist_white() + 
+  ggtitle("Earnings, Union Member and Gender")
 
 gg5
 
@@ -294,7 +301,8 @@ gg6 <- ggplot(df_clean, aes(x = factor(ownchild), y = eph,
                     values=c('red','blue')) +
   labs(x = "Own Child",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() 
+  ggthemes::theme_economist_white() +
+  ggtitle("Earnings, Own Child and Gender")
 
 gg6
 
@@ -314,8 +322,9 @@ gg7 <- ggplot(df_clean, aes(x = factor(class), y = eph,
                     values=c('red','blue')) +
   labs(x = "Class",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() +
-  theme(axis.text.x = element_text(angle=45, vjust=.5))
+  ggthemes::theme_economist_white() +
+  theme(axis.text.x = element_text(angle=45, vjust=.5)) +
+  ggtitle("Earnings, Class and Gender")
 
 gg7
 
@@ -335,8 +344,9 @@ gg8 <- ggplot(df_clean, aes(x = factor(region), y = eph,
                     values=c('red','blue')) +
   labs(x = "Region",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist() +
-  theme(axis.text.x = element_text(angle=45, vjust=.5))
+  ggthemes::theme_economist_white() +
+  theme(axis.text.x = element_text(angle=45, vjust=.5)) +
+  ggtitle("Earnings, Region and Gender")
 
 gg8
 
@@ -358,7 +368,8 @@ gg9 <- ggplot(df_clean, aes(x = factor(marital_status), y = eph,
                     values=c('red','blue')) +
   labs(x = "Race",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist()
+  ggthemes::theme_economist_white() +
+  ggtitle("Earnings, Race and Marital Status")
 
 gg9
 
@@ -378,8 +389,9 @@ gg10 <- ggplot(df_clean, aes(x = factor(class), y = eph,
                     values=c('red','blue')) +
   labs(x = "Class",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
-  ggthemes::theme_economist()+
-  theme(axis.text.x = element_text(angle=45, vjust=.5))
+  ggthemes::theme_economist_white()+
+  theme(axis.text.x = element_text(angle=45, vjust=.5)) +
+  ggtitle("Earnings, Union Member and Class")
 
 gg10
 
@@ -403,7 +415,8 @@ gg11 <- ggplot(df_clean, aes(x = factor(region), y = eph,
   labs(x = "Region",y = "Earnings per Hour (USD)")+
   scale_y_continuous(expand = c(0.01,0.01), limits=c(0, 50), breaks = seq(0,50, 10))+
   ggthemes::theme_economist()+
-  theme(axis.text.x = element_text(angle=45, vjust=.5))
+  theme(axis.text.x = element_text(angle=45, vjust=.5)) + 
+  ggtitle("Earnings, Union Member and Region")
 
 gg11
 
@@ -523,8 +536,9 @@ gg12 <- ggplot( m_comp , aes( x = complexity , y = RMSE ) ) +
   geom_point(color='red',size=2) +
   geom_line(color='blue',size=0.5)+
   labs(x='Number of explanatory variables',y='Averaged RMSE on test samples',
-       title='Prediction performance and model compexity') +
-  ggthemes::theme_economist()
+       title='Prediction performance and Model compexity') +
+  ggthemes::theme_economist_white() +
+  ggtitle("")
 
 gg12
 
@@ -534,18 +548,18 @@ gg13<- ggplot(df_clean, aes(x=predict(reg2, df_clean), y=eph)) +
   geom_abline(intercept = 0, slope = 1, size = 0.5) +
   scale_x_continuous(limits = c(0,30)) + 
   scale_y_continuous(limits = c(0,60)) +
-  ggthemes::theme_economist()
+  ggthemes::theme_economist_white() +
+  ggtitle("Best Prediction Model")
 
 gg13
 ###################
 
 ## Arranging interaction plots into a grid for better presentation
 
-grid.arrange(educ_gender, educ_race, race_gender, race_married, 
-             nrow = 2, ncol = 2)
+grid.arrange(grobs = list (gg1,gg4,gg5,gg6,gg7,gg8), ncol = 2)
 
-grid.arrange(married_gender, ownchild_gender, union_gender, unionmme_class, nrow = 2, ncol = 2)
+grid.arrange(grobs = list(gg2,gg9), ncol = 2)
 
-grid.arrange(unionmme_prborn, unionmme_race, unionmme_region, nrow = 2, ncol = 2)
+grid.arrange(grobs = list (gg10,gg11), ncol = 2)
 
 
